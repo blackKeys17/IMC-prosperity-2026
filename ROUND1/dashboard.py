@@ -34,7 +34,8 @@ with st.sidebar:
 if product == "Ash-coated osmium":
     st.header("Market data for ash-coated osmium")
     prices_df = prices_dfs[-day]
-    prices_df = prices_df[(prices_df["product"] == "ASH_COATED_OSMIUM") & (prices_df["bid_price_1"] != 0)]
+    prices_df_1 = prices_df[(prices_df["product"] == "ASH_COATED_OSMIUM") & (prices_df["bid_price_1"] != 0)]
+    prices_df_2 = prices_df[(prices_df["product"] == "ASH_COATED_OSMIUM") & (prices_df["bid_price_2"] != 0) & (prices_df["ask_price_2"] != 0)]
     trades_df = trades_dfs[-day]
     trades_df = trades_df[trades_df["symbol"] == "ASH_COATED_OSMIUM"]
 
@@ -43,20 +44,32 @@ if product == "Ash-coated osmium":
 
     # Bid line
     fig.add_trace(go.Scatter(
-        x=prices_df["timestamp"], 
-        y=prices_df["bid_price_1"], 
+        x=prices_df_1["timestamp"], 
+        y=prices_df_1["bid_price_1"], 
         name="Bid Price",
         mode="lines",
-        line=dict(color="blue")
+        line=dict(color="blue"),
+        connectgaps=True
     ))
 
     # Ask line
     fig.add_trace(go.Scatter(
-        x=prices_df["timestamp"], 
-        y=prices_df["ask_price_1"], 
+        x=prices_df_1["timestamp"], 
+        y=prices_df_1["ask_price_1"], 
         name="Ask Price",
         mode="lines",
-        line=dict(color="red")
+        line=dict(color="red"),
+        connectgaps=True
+    ))
+
+    # WallMid - averaging bid/asks from the bigger liquidity providers in the 2nd columns
+    fig.add_trace(go.Scatter(
+        x = prices_df_2["timestamp"],
+        y = (prices_df_2["bid_price_2"] + prices_df_2["ask_price_2"])/2,
+        name="WallMid",
+        mode="lines",
+        line=dict(color="black"),
+        connectgaps=True
     ))
 
     # Trade data
@@ -64,7 +77,7 @@ if product == "Ash-coated osmium":
         x=trades_df["timestamp"], 
         y=trades_df["price"],
         mode="markers",
-        marker=dict(color="black", size=circle_size*trades_df["quantity"]/10, opacity=circle_opacity/10)
+        marker=dict(color="green", size=circle_size*trades_df["quantity"]/10, opacity=circle_opacity/10)
     ))
 
     st.plotly_chart(fig)
@@ -72,7 +85,8 @@ if product == "Ash-coated osmium":
 elif product == "Intarian pepper root":
     st.header("Market data for Intarian pepper root")
     prices_df = prices_dfs[-day]
-    prices_df = prices_df[(prices_df["product"] == "INTARIAN_PEPPER_ROOT") & (prices_df["bid_price_1"] != 0)]
+    prices_df_1 = prices_df[(prices_df["product"] == "INTARIAN_PEPPER_ROOT") & (prices_df["bid_price_1"] != 0)]
+    prices_df_2 = prices_df[(prices_df["product"] == "INTARIAN_PEPPER_ROOT") & (prices_df["bid_price_2"] != 0)]
     trades_df = trades_dfs[-day]
     trades_df = trades_df[trades_df["symbol"] == "INTARIAN_PEPPER_ROOT"]
 
@@ -81,20 +95,32 @@ elif product == "Intarian pepper root":
 
     # Bid line
     fig.add_trace(go.Scatter(
-        x=prices_df["timestamp"], 
-        y=prices_df["bid_price_1"], 
+        x=prices_df_1["timestamp"], 
+        y=prices_df_1["bid_price_1"], 
         name="Bid Price",
         mode="lines",
-        line=dict(color="blue")
+        line=dict(color="blue"),
+        connectgaps=True
     ))
 
     # Ask line
     fig.add_trace(go.Scatter(
-        x=prices_df["timestamp"], 
-        y=prices_df["ask_price_1"], 
+        x=prices_df_1["timestamp"], 
+        y=prices_df_1["ask_price_1"], 
         name="Ask Price",
         mode="lines",
-        line=dict(color="red")
+        line=dict(color="red"),
+        connectgaps=True
+    ))
+
+    # WallMid - averaging bid/asks from the bigger liquidity providers in the 2nd columns
+    fig.add_trace(go.Scatter(
+        x = prices_df_2["timestamp"],
+        y = (prices_df_2["bid_price_2"] + prices_df_2["ask_price_2"])/2,
+        name="WallMid",
+        mode="lines",
+        line=dict(color="black"),
+        connectgaps=True
     ))
 
     # Trade data
@@ -102,7 +128,7 @@ elif product == "Intarian pepper root":
         x=trades_df["timestamp"], 
         y=trades_df["price"],
         mode="markers",
-        marker=dict(color="black", size=circle_size*trades_df["quantity"]/10, opacity=circle_opacity/10)
+        marker=dict(color="green", size=circle_size*trades_df["quantity"]/10, opacity=circle_opacity/10)
     ))
 
     st.plotly_chart(fig)
