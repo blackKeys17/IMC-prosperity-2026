@@ -10,14 +10,14 @@ st.title("IMC Prosperity - Round 1 Dashboard")
 @st.cache_data
 def load_data():
     prices_dfs = []
-    prices_dfs.append(pd.read_csv("prices_round_1_day_0.csv", sep=";"))
-    prices_dfs.append(pd.read_csv("prices_round_1_day_-1.csv", sep=";"))
-    prices_dfs.append(pd.read_csv("prices_round_1_day_-2.csv", sep=";"))
+    prices_dfs.append(pd.read_csv("ROUND1/prices_round_1_day_0.csv", sep=";"))
+    prices_dfs.append(pd.read_csv("ROUND1/prices_round_1_day_-1.csv", sep=";"))
+    prices_dfs.append(pd.read_csv("ROUND1/prices_round_1_day_-2.csv", sep=";"))
     # Load Trades
     trades_dfs = []
-    trades_dfs.append(pd.read_csv("trades_round_1_day_0.csv", sep=";"))
-    trades_dfs.append(pd.read_csv("trades_round_1_day_-1.csv", sep=";"))
-    trades_dfs.append(pd.read_csv("trades_round_1_day_-2.csv", sep=";"))
+    trades_dfs.append(pd.read_csv("ROUND1/trades_round_1_day_0.csv", sep=";"))
+    trades_dfs.append(pd.read_csv("ROUND1/trades_round_1_day_-1.csv", sep=";"))
+    trades_dfs.append(pd.read_csv("ROUND1/trades_round_1_day_-2.csv", sep=";"))
 
     return prices_dfs, trades_dfs
 
