@@ -76,6 +76,7 @@ if product == "Ash-coated osmium":
     fig.add_trace(go.Scatter(
         x=trades_df["timestamp"], 
         y=trades_df["price"],
+        name="Trades",
         mode="markers",
         marker=dict(color="green", size=circle_size*trades_df["quantity"]/10, opacity=circle_opacity/10)
     ))
@@ -127,6 +128,7 @@ elif product == "Intarian pepper root":
     fig.add_trace(go.Scatter(
         x=trades_df["timestamp"], 
         y=trades_df["price"],
+        name="Trades",
         mode="markers",
         marker=dict(color="green", size=circle_size*trades_df["quantity"]/10, opacity=circle_opacity/10)
     ))
