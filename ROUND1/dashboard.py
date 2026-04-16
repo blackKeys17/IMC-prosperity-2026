@@ -34,8 +34,7 @@ with st.sidebar:
 if product == "Ash-coated osmium":
     st.header("Market data for ash-coated osmium")
     prices_df = prices_dfs[-day]
-    prices_df_1 = prices_df[(prices_df["product"] == "ASH_COATED_OSMIUM") & (prices_df["bid_price_1"] != 0)]
-    prices_df_2 = prices_df[(prices_df["product"] == "ASH_COATED_OSMIUM") & (prices_df["bid_price_2"] != 0) & (prices_df["ask_price_2"] != 0)]
+    prices_df = prices_df[(prices_df["product"] == "ASH_COATED_OSMIUM")].ffill()
     trades_df = trades_dfs[-day]
     trades_df = trades_df[trades_df["symbol"] == "ASH_COATED_OSMIUM"]
 
@@ -44,32 +43,30 @@ if product == "Ash-coated osmium":
 
     # Bid line
     fig.add_trace(go.Scatter(
-        x=prices_df_1["timestamp"], 
-        y=prices_df_1["bid_price_1"], 
+        x=prices_df["timestamp"], 
+        y=prices_df["bid_price_1"], 
         name="Bid Price",
         mode="lines",
-        line=dict(color="blue"),
-        connectgaps=True
+        line=dict(color="blue")
     ))
 
     # Ask line
     fig.add_trace(go.Scatter(
-        x=prices_df_1["timestamp"], 
-        y=prices_df_1["ask_price_1"], 
+        x=prices_df["timestamp"], 
+        y=prices_df["ask_price_1"], 
         name="Ask Price",
         mode="lines",
-        line=dict(color="red"),
-        connectgaps=True
+        line=dict(color="red")
     ))
 
     # WallMid - averaging bid/asks from the bigger liquidity providers in the 2nd columns
+    wall_mid = (prices_df["bid_price_2"] + prices_df["ask_price_2"])/2
     fig.add_trace(go.Scatter(
-        x = prices_df_2["timestamp"],
-        y = (prices_df_2["bid_price_2"] + prices_df_2["ask_price_2"])/2,
+        x = prices_df["timestamp"],
+        y = wall_mid,
         name="WallMid",
         mode="lines",
-        line=dict(color="black"),
-        connectgaps=True
+        line=dict(color="black")
     ))
 
     # Trade data
@@ -82,46 +79,88 @@ if product == "Ash-coated osmium":
     ))
 
     st.plotly_chart(fig)
+    
+    # Stats
+    st.write(f"Mean: {wall_mid.mean()}")
+    st.write(f"Standard deviation: {wall_mid.std()}")
+
+    st.header("Normalised bid/ask with WallMid")
+    fig2 = go.Figure()
+
+    # Normalised bid line
+    fig2.add_trace(go.Scatter(
+        x=prices_df["timestamp"],
+        y=prices_df["bid_price_1"] - wall_mid,
+        name="Normalised bid price",
+        mode="lines",
+        line=dict(color="blue")
+    ))
+    
+    # Normalised bid line from big liquidity providers
+    fig2.add_trace(go.Scatter(
+        x=prices_df["timestamp"],
+        y=prices_df["bid_price_2"] - wall_mid,
+        name="Normalised bid price (big liquidity provider)",
+        mode="lines",
+        line=dict(color="cyan")
+    ))
+
+    # Normalised ask line
+    fig2.add_trace(go.Scatter(
+        x=prices_df["timestamp"], 
+        y=prices_df["ask_price_1"] - wall_mid, 
+        name="Normalised ask price",
+        mode="lines",
+        line=dict(color="red")
+    ))
+    
+    # Normalised ask line from big liquidity providers
+    fig2.add_trace(go.Scatter(
+        x=prices_df["timestamp"],
+        y=prices_df["ask_price_2"] - wall_mid,
+        name="Normalised ask price (big liquidity provider)",
+        mode="lines",
+        line=dict(color="orange")
+    ))
+
+    st.plotly_chart(fig2)
 
 elif product == "Intarian pepper root":
     st.header("Market data for Intarian pepper root")
     prices_df = prices_dfs[-day]
-    prices_df_1 = prices_df[(prices_df["product"] == "INTARIAN_PEPPER_ROOT") & (prices_df["bid_price_1"] != 0)]
-    prices_df_2 = prices_df[(prices_df["product"] == "INTARIAN_PEPPER_ROOT") & (prices_df["bid_price_2"] != 0)]
+    prices_df = prices_df[(prices_df["product"] == "INTARIAN_PEPPER_ROOT")].ffill()
     trades_df = trades_dfs[-day]
     trades_df = trades_df[trades_df["symbol"] == "INTARIAN_PEPPER_ROOT"]
 
     # Plot market data
-    fig = go.Figure() 
+    fig = go.Figure()
 
     # Bid line
     fig.add_trace(go.Scatter(
-        x=prices_df_1["timestamp"], 
-        y=prices_df_1["bid_price_1"], 
+        x=prices_df["timestamp"], 
+        y=prices_df["bid_price_1"], 
         name="Bid Price",
         mode="lines",
-        line=dict(color="blue"),
-        connectgaps=True
+        line=dict(color="blue")
     ))
 
     # Ask line
     fig.add_trace(go.Scatter(
-        x=prices_df_1["timestamp"], 
-        y=prices_df_1["ask_price_1"], 
+        x=prices_df["timestamp"], 
+        y=prices_df["ask_price_1"], 
         name="Ask Price",
         mode="lines",
-        line=dict(color="red"),
-        connectgaps=True
+        line=dict(color="red")
     ))
 
     # WallMid - averaging bid/asks from the bigger liquidity providers in the 2nd columns
+    wall_mid = (prices_df["bid_price_2"] + prices_df["ask_price_2"])/2
     fig.add_trace(go.Scatter(
-        x = prices_df_2["timestamp"],
-        y = (prices_df_2["bid_price_2"] + prices_df_2["ask_price_2"])/2,
+        x = prices_df["timestamp"],
+        y = wall_mid,
         name="WallMid",
         mode="lines",
-        line=dict(color="black"),
-        connectgaps=True
+        line=dict(color="black")
     ))
 
     # Trade data
@@ -134,3 +173,50 @@ elif product == "Intarian pepper root":
     ))
 
     st.plotly_chart(fig)
+
+    # Stats
+    st.write(f"Mean: {wall_mid.mean()}")
+    st.write(f"Standard deviation: {wall_mid.std()}")
+
+    st.header("Normalised bid/ask with WallMid")
+    fig2 = go.Figure()
+
+    # Normalised bid line
+    fig2.add_trace(go.Scatter(
+        x=prices_df["timestamp"],
+        y=prices_df["bid_price_1"] - wall_mid,
+        name="Normalised bid price",
+        mode="lines",
+        line=dict(color="blue")
+    ))
+
+    # Normalised bid line from big liquidity providers
+    fig2.add_trace(go.Scatter(
+        x=prices_df["timestamp"],
+        y=prices_df["bid_price_2"] - wall_mid,
+        name="Normalised bid price (big liquidity provider)",
+        mode="lines",
+        line=dict(color="cyan")
+    ))
+
+    # Normalised ask line
+    fig2.add_trace(go.Scatter(
+        x=prices_df["timestamp"], 
+        y=prices_df["ask_price_1"] - wall_mid, 
+        name="Normalised ask price",
+        mode="lines",
+        line=dict(color="red")
+    ))
+    
+    # Normalised ask line from big liquidity providers
+    fig2.add_trace(go.Scatter(
+        x=prices_df["timestamp"],
+        y=prices_df["ask_price_2"] - wall_mid,
+        name="Normalised ask price (big liquidity provider)",
+        mode="lines",
+        line=dict(color="orange")
+    ))
+
+
+
+    st.plotly_chart(fig2)
