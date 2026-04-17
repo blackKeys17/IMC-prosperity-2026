@@ -6,24 +6,25 @@ from plotly.subplots import make_subplots
 
 st.set_page_config(page_title="IMC Prosperity - Round 1 Dashboard", layout="wide")
 st.title("IMC Prosperity - Round 1 Dashboard")
+round_displayed = st.selectbox("Choose round:", [1, 2])
 
 @st.cache_data
-def load_data():
+def load_data(round):
     prices_dfs = []
-    prices_dfs.append(pd.read_csv("ROUND1/prices_round_1_day_0.csv", sep=";"))
-    prices_dfs.append(pd.read_csv("ROUND1/prices_round_1_day_-1.csv", sep=";"))
-    prices_dfs.append(pd.read_csv("ROUND1/prices_round_1_day_-2.csv", sep=";"))
+    prices_dfs.append(pd.read_csv(f"ROUND1/prices_round_{round}_day_{round_displayed-1}.csv", sep=";"))
+    prices_dfs.append(pd.read_csv(f"ROUND1/prices_round_{round}_day_{round_displayed-2}.csv", sep=";"))
+    prices_dfs.append(pd.read_csv(f"ROUND1/prices_round_{round}_day_{round_displayed-3}.csv", sep=";"))
     # Load Trades
     trades_dfs = []
-    trades_dfs.append(pd.read_csv("ROUND1/trades_round_1_day_0.csv", sep=";"))
-    trades_dfs.append(pd.read_csv("ROUND1/trades_round_1_day_-1.csv", sep=";"))
-    trades_dfs.append(pd.read_csv("ROUND1/trades_round_1_day_-2.csv", sep=";"))
+    trades_dfs.append(pd.read_csv(f"ROUND1/trades_round_{round}_day_{round_displayed-1}.csv", sep=";"))
+    trades_dfs.append(pd.read_csv(f"ROUND1/trades_round_{round}_day_{round_displayed-2}.csv", sep=";"))
+    trades_dfs.append(pd.read_csv(f"ROUND1/trades_round_{round}_day_{round_displayed-3}.csv", sep=";"))
 
     return prices_dfs, trades_dfs
 
 product = st.selectbox("Select product:", ["Ash-coated osmium", "Intarian pepper root"])
-day = st.selectbox("Select day:", [0, -1, -2])
-prices_dfs, trades_dfs = load_data()
+day = st.selectbox("Select day:", [round_displayed-1, round_displayed-2, round_displayed-3])
+prices_dfs, trades_dfs = load_data(round=round_displayed)
 
 # Sidebar for options
 with st.sidebar:
@@ -33,9 +34,9 @@ with st.sidebar:
 
 if product == "Ash-coated osmium":
     st.header("Market data for ash-coated osmium")
-    prices_df = prices_dfs[-day]
+    prices_df = prices_dfs[-(day-round_displayed+1)]
     prices_df = prices_df[(prices_df["product"] == "ASH_COATED_OSMIUM")].ffill()
-    trades_df = trades_dfs[-day]
+    trades_df = trades_dfs[-(day-round_displayed+1)]
     trades_df = trades_df[trades_df["symbol"] == "ASH_COATED_OSMIUM"]
 
     # Plot market data
@@ -127,9 +128,9 @@ if product == "Ash-coated osmium":
 
 elif product == "Intarian pepper root":
     st.header("Market data for Intarian pepper root")
-    prices_df = prices_dfs[-day]
+    prices_df = prices_dfs[-(day-round_displayed+1)]
     prices_df = prices_df[(prices_df["product"] == "INTARIAN_PEPPER_ROOT")].ffill()
-    trades_df = trades_dfs[-day]
+    trades_df = trades_dfs[-(day-round_displayed+1)]
     trades_df = trades_df[trades_df["symbol"] == "INTARIAN_PEPPER_ROOT"]
 
     # Plot market data
