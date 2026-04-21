@@ -11,14 +11,14 @@ round_displayed = st.selectbox("Choose round:", [1, 2])
 @st.cache_data
 def load_data(round):
     prices_dfs = []
-    prices_dfs.append(pd.read_csv(f"ROUND1/prices_round_{round}_day_{round_displayed-1}.csv", sep=";"))
-    prices_dfs.append(pd.read_csv(f"ROUND1/prices_round_{round}_day_{round_displayed-2}.csv", sep=";"))
-    prices_dfs.append(pd.read_csv(f"ROUND1/prices_round_{round}_day_{round_displayed-3}.csv", sep=";"))
+    prices_dfs.append(pd.read_csv(f"DASHBOARD/prices_round_{round}_day_{round_displayed-1}.csv", sep=";"))
+    prices_dfs.append(pd.read_csv(f"DASHBOARD/prices_round_{round}_day_{round_displayed-2}.csv", sep=";"))
+    prices_dfs.append(pd.read_csv(f"DASHBOARD/prices_round_{round}_day_{round_displayed-3}.csv", sep=";"))
     # Load Trades
     trades_dfs = []
-    trades_dfs.append(pd.read_csv(f"ROUND1/trades_round_{round}_day_{round_displayed-1}.csv", sep=";"))
-    trades_dfs.append(pd.read_csv(f"ROUND1/trades_round_{round}_day_{round_displayed-2}.csv", sep=";"))
-    trades_dfs.append(pd.read_csv(f"ROUND1/trades_round_{round}_day_{round_displayed-3}.csv", sep=";"))
+    trades_dfs.append(pd.read_csv(f"DASHBOARD/trades_round_{round}_day_{round_displayed-1}.csv", sep=";"))
+    trades_dfs.append(pd.read_csv(f"DASHBOARD/trades_round_{round}_day_{round_displayed-2}.csv", sep=";"))
+    trades_dfs.append(pd.read_csv(f"DASHBOARD/trades_round_{round}_day_{round_displayed-3}.csv", sep=";"))
 
     return prices_dfs, trades_dfs
 
@@ -70,14 +70,31 @@ if product == "Ash-coated osmium":
         line=dict(color="black")
     ))
 
-    # Trade data
+   # 1. Ensure wall_mid has the timestamp associated with it for the merge
+    # We create a temporary DataFrame so we have a 'timestamp' column to join on
+    wall_df = pd.DataFrame({
+        "timestamp": prices_df["timestamp"],
+        "mid_price": (prices_df["bid_price_2"] + prices_df["ask_price_2"]) / 2
+    })
+
+    # 2. Merge - This aligns every trade with the WallMid at that exact moment
+    merged = trades_df.merge(wall_df, on="timestamp", how="left")
+
+    # 3. Create the 'Trade' trace using the MERGED dataframe
+    # This ensures x and y are the same length
     fig.add_trace(go.Scatter(
-        x=trades_df["timestamp"], 
-        y=trades_df["price"],
+        x=merged["timestamp"], 
+        y=merged["price"],  # Use 'merged' here, not trades_df
         name="Trades",
         mode="markers",
-        marker=dict(color="green", size=circle_size*trades_df["quantity"]/10, opacity=circle_opacity/10)
-    ))
+        marker=dict(
+            # Visualizing size based on quantity
+            size=circle_size * merged["quantity"] / 10, 
+            opacity=circle_opacity / 10,
+            # Bonus: Color trades green if they happened ABOVE the wall mid
+            color=["green" if p > m else "red" for p, m in zip(merged["price"], merged["mid_price"])]
+        )
+    )) 
 
     st.plotly_chart(fig)
     
@@ -164,13 +181,30 @@ elif product == "Intarian pepper root":
         line=dict(color="black")
     ))
 
-    # Trade data
+    # 1. Ensure wall_mid has the timestamp associated with it for the merge
+    # We create a temporary DataFrame so we have a 'timestamp' column to join on
+    wall_df = pd.DataFrame({
+        "timestamp": prices_df["timestamp"],
+        "mid_price": (prices_df["bid_price_2"] + prices_df["ask_price_2"]) / 2
+    })
+
+    # 2. Merge - This aligns every trade with the WallMid at that exact moment
+    merged = trades_df.merge(wall_df, on="timestamp", how="left")
+
+    # 3. Create the 'Trade' trace using the MERGED dataframe
+    # This ensures x and y are the same length
     fig.add_trace(go.Scatter(
-        x=trades_df["timestamp"], 
-        y=trades_df["price"],
+        x=merged["timestamp"], 
+        y=merged["price"],  # Use 'merged' here, not trades_df
         name="Trades",
         mode="markers",
-        marker=dict(color="green", size=circle_size*trades_df["quantity"]/10, opacity=circle_opacity/10)
+        marker=dict(
+            # Visualizing size based on quantity
+            size=circle_size * merged["quantity"] / 10, 
+            opacity=circle_opacity / 10,
+            # Bonus: Color trades green if they happened ABOVE the wall mid
+            color=["green" if p > m else "red" for p, m in zip(merged["price"], merged["mid_price"])]
+        )
     ))
 
     st.plotly_chart(fig)
